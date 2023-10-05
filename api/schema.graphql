@@ -1,0 +1,25 @@
+type Query {
+  collections: CollectionQueries!
+  members: MemberQueries!
+}
+
+type Mutation {
+  collections: CollectionMutations!
+  members: MemberMutations!
+}
+
+type CollectionQueries {
+  list: [Collection]!
+}
+
+input CreateCollectionInput {
+  name: String!
+}
+
+type CollectionMutations {
+  create(input: CreateCollectionInput!): Collection
+}
+
+type Collection {
+  name: String!
+}

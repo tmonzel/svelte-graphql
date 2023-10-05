@@ -1,0 +1,19 @@
+type Member {
+  _id: ID!
+  firstName: String!
+  lastName: String!
+}
+
+type MemberQueries {
+  list: [Member]!
+  pick(id: ID!): Member
+}
+
+type MemberMutations {
+  create(input: CreateMemberInput!): Member
+}
+
+input CreateMemberInput {
+  firstName: String!
+  lastName: String!
+}
