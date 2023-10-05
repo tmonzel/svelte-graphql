@@ -20,5 +20,10 @@ def resolve_collection_list(obj, info):
 
 @collection_mutations.field('create')
 def resolve_create_collection(obj, info, input):
-    collection = db.create_collection(input["name"])
+    db.create_collection(input["name"])
     return { "name": input["name"] }
+
+@collection_mutations.field('drop')
+def resolve_delete_collection(obj, info, name):
+    db.drop_collection(name)
+    return True

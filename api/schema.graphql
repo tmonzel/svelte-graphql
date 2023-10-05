@@ -18,6 +18,7 @@ input CreateCollectionInput {
 
 type CollectionMutations {
   create(input: CreateCollectionInput!): Collection
+  drop(name: String!): Boolean
 }
 
 type Collection {

@@ -9,9 +9,12 @@
 		await collectionModel.create({ name: newCollectionName });
 	}
 
+	async function dropCollection(name: string) {
+		await collectionModel.drop(name);
+	}
+
 	onMount(() => {
-		const collectionsQuery = collectionModel.all$
-		collectionsQuery.subscribe(result => collections = result.data.collections.list.sort((a, b) => {
+		collectionModel.all$.subscribe(list => collections = list.sort((a, b) => {
 			if(a.name < b.name) {
 				return -1;
 			}
@@ -38,7 +41,11 @@
 
 	<ul class="list-group mb-3">
 		{#each collections as collection}
-		<li class="list-group-item">{collection.name}</li>
+		<li class="list-group-item d-flex align-items-center justify-content-between">{collection.name} 
+			<button class="btn p-0" on:click={() => dropCollection(collection.name)}>
+				<span class="material-icons">delete</span>
+			</button>
+		</li>
 		{/each}
 	</ul>
 
