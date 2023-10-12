@@ -14,17 +14,21 @@
 	}
 
 	onMount(() => {
-		collectionModel.all$.subscribe(list => collections = list.sort((a, b) => {
-			if(a.name < b.name) {
-				return -1;
-			}
+		collectionModel.all$.subscribe(list => {
+			const sortedList = [...list].sort((a, b) => {
+				if(a.name < b.name) {
+					return -1;
+				}
 
-			if(a.name > b.name) {
-				return 1;
-			}
+				if(a.name > b.name) {
+					return 1;
+				}
 
-			return 0;
-		}))
+				return 0;
+			});
+
+			collections = sortedList;
+		})
 	})
 
 </script>
