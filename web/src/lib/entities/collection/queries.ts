@@ -21,7 +21,7 @@ export const CREATE_COLLECTION = gql`
 `;
 
 export const DROP_COLLECTION = gql`
-  mutation CreateCollection($name: String!) {
+  mutation DropCollection($name: String!) {
     collections {
       drop(name: $name)
     }

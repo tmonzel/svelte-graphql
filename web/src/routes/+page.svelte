@@ -38,7 +38,7 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<div class="container mt-5">
+<div>
 	<h1>Collections</h1>
 
 	<p class="lead">Manage all of your collections</p>
