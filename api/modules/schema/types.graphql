@@ -1,0 +1,30 @@
+type Schema {
+  id: ID!
+  name: String!
+  attributes: [SchemaAttribute]
+}
+
+type SchemaAttribute {
+  type: String!
+  name: String!
+  required: Boolean
+}
+
+type SchemaQueries {
+  list: [Schema]!
+}
+
+input SchemaAttributeInput {
+  type: String!
+  name: String!
+  required: Boolean
+}
+
+input CreateSchemaInput {
+  name: String!
+  attributes: [SchemaAttributeInput]
+}
+
+type SchemaMutations {
+  create(input: CreateSchemaInput!): Schema
+}

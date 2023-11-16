@@ -1,2 +1,1 @@
-from .member import Member
-from .company import Company
+from .schema import Schema

@@ -1,26 +1,9 @@
 type Query {
   collections: CollectionQueries!
-  members: MemberQueries!
+  schemata: SchemaQueries!
 }
 
 type Mutation {
   collections: CollectionMutations!
-  members: MemberMutations!
-}
-
-type CollectionQueries {
-  list: [Collection]!
-}
-
-input CreateCollectionInput {
-  name: String!
-}
-
-type CollectionMutations {
-  create(input: CreateCollectionInput!): Collection
-  drop(name: String!): Boolean
-}
-
-type Collection {
-  name: String!
+  schemata: SchemaMutations!
 }
