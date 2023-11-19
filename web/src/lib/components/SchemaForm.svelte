@@ -1,10 +1,11 @@
 <script lang="ts">
   import { FormInput, FormSelect } from '$lib/forms/components'; 
 	import { FormControl, Validators, createForm } from '$lib/forms';
-	import type { SchemaInput } from '$lib/entities/schema';
+	import { SchemaEntity, type SchemaInput } from '$lib/entities/schema';
+	import { createEventDispatcher } from 'svelte';
 
   export let submittable = true;
-  export let value: Partial<SchemaInput> = {};
+  export let input: SchemaInput | null = null;
 
   type SchemaFormModel = {
     name: FormControl<string>;
@@ -15,8 +16,8 @@
     }[];
   }
 
-  const { form, state, markAllAsTouched } = createForm<SchemaFormModel>({
-    name: new FormControl(value.name ?? '', Validators.required()),
+  const { form, state, markAllAsTouched } = createForm<SchemaFormModel, SchemaInput>({
+    name: new FormControl(input ? input.name : '', Validators.required()),
     attributes: []
   });
   
@@ -32,6 +33,17 @@
     ];
   }
 
+  function removeAttribute(index: number): void {
+    $form.attributes = $form.attributes.filter((attr, i) => i !== index);
+  }
+
+  if(input) {
+    // Add attributes
+    for(const attr of input.attributes) {
+      addAttribute(attr);
+    }
+  }
+
   $: submittable = $state.submittable;
 
   const attributeTypes = [
@@ -45,6 +57,8 @@
     }
   ];
 
+  const dispatch = createEventDispatcher();
+
 	export const submit = async() => {
 		if(!$state.valid) {
 			// Data is not valid
@@ -52,7 +66,15 @@
 			return;
 		}
 
-		//await SchemaEntity.create($form);
+    if(input && input.id) {
+      // Update existing schema
+      await SchemaEntity.update(input.id, $state.value);
+    } else {
+      // Create new schema
+      await SchemaEntity.create($state.value);
+    }
+
+    dispatch('success', $state.value);
 	};
 </script>
 
@@ -65,11 +87,16 @@
   <div class="mb-3">
     <h6>Attribut {i + 1}</h6>
     <div class="row">
-      <div class="col">
+      <div class="col-md-3">
         <FormSelect bind:control={attr.type} options={attributeTypes} />
       </div>
       <div class="col">
         <FormInput bind:control={attr.name} />
+      </div>
+      <div class="col col-auto">
+        <button class="btn p-0" on:click={() => removeAttribute(i)}>
+					<span class="material-icons">delete</span>
+				</button>
       </div>
     </div>
   </div>

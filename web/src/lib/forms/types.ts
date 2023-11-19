@@ -18,15 +18,15 @@ export interface FormValidationError {
   message: string;
 }
 
-export interface FormState {
+export interface FormState<T> {
   valid: boolean;
   touched: boolean;
   submittable: boolean;
-  value: any;
+  value: T;
 }
 
-export interface Form<T> {
+export interface Form<T, V> {
   form: Writable<T>;
-  state: Readable<FormState>;
+  state: Readable<FormState<V>>;
   markAllAsTouched: () => void;
 }

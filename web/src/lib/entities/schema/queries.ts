@@ -1,42 +1,56 @@
 import type { EntityQueryMap } from '$lib/entity';
 import { gql } from '@apollo/client/core';
 
+export const SCHEMA_FIELDS = gql`
+  fragment SchemaFields on Schema {
+    id
+    name
+    attributes {
+      type
+      name
+      required
+    }
+  }
+`;
+
 export const queryMap = {
   list: gql`
+    ${SCHEMA_FIELDS}
     query ListSchemata {
       schemata {
         list {
-          id
-          name
+          ...SchemaFields
         }
       }
     }
   `,
 
   create: gql`
+    ${SCHEMA_FIELDS}
     mutation CreateSchema($input: CreateSchemaInput!) {
       schemata {
         create(input: $input) {
-          name
+          ...SchemaFields
         }
       }
     }
   `,
 
   update: gql`
-    mutation UpdateSchema($input: UpdateSchemaInput!) {
+    ${SCHEMA_FIELDS}
+    mutation UpdateSchema($id: ID!, $changes: UpdateSchemaInput!) {
       schemata {
-        update(input: $input) {
-          name
+        update(id: $id, changes: $changes) {
+          ...SchemaFields
         }
       }
     }
   `,
 
   destroy: gql`
-    mutation DeleteSchema($name: String!) {
+    mutation DeleteSchema($id: ID!) {
       schemata {
-        delete(name: $name)
+        delete(id: $id)
       }
     }
   `

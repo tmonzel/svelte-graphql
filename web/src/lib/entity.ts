@@ -12,7 +12,7 @@ export type EntityQueryMap = {
   destroy: DocumentNode;
 }
 
-export function createEntity<T extends Entity, EntiyInputType>(name: string, queries: EntityQueryMap) {
+export function createEntity<T extends Entity, EntityInputType>(name: string, queries: EntityQueryMap) {
   function writeListQuery(writer: (list: T[]) => T[]) {
     const listQuery = client.readQuery({ query: queries.list });
     
@@ -21,7 +21,7 @@ export function createEntity<T extends Entity, EntiyInputType>(name: string, que
         query: queries.list, 
         data: { 
           ...listQuery, 
-          collections: {
+          [name]: {
             ...listQuery[name],
             list: writer(listQuery[name].list)
           }
@@ -30,7 +30,7 @@ export function createEntity<T extends Entity, EntiyInputType>(name: string, que
     }
   }
 
-  async function create(input: EntiyInputType) {
+  async function create(input: EntityInputType) {
     const result = await client.mutate({ 
 			mutation: queries.create, 
 			variables: { input }
@@ -41,16 +41,42 @@ export function createEntity<T extends Entity, EntiyInputType>(name: string, que
 		})
   }
 
+  async function update(id: string, changes: Partial<EntityInputType>) {
+    const result = await client.mutate({ 
+			mutation: queries.update, 
+			variables: { id, changes }
+		});
+
+		writeListQuery((oldList) => {
+      for(const index in oldList) {
+        const entity = oldList[index] as T;
+
+        if(entity.id === id) {
+          oldList[index] = { ...oldList[index], ...result.data[name].update };
+          break;
+        }
+      }
+      
+      return oldList;
+		})
+  }
+
   function watchAll(): Observable<T[]> {
     return client.watchQuery({ 
 			query: queries.list 
 		}).map(result => result.data[name].list) as Observable<T[]>;
   }
 
+  async function findById(id: string): Promise<T | undefined> {
+    const result = await client.query({ query: queries.list });
+
+    return (result.data[name].list as T[]).find(entity => entity.id === id);
+  }
+
   async function destroy(id: string) {
 		await client.mutate({ 
 			mutation: queries.destroy, 
-			variables: { name }
+			variables: { id }
 		});
 
 		writeListQuery((list) => {
@@ -60,7 +86,9 @@ export function createEntity<T extends Entity, EntiyInputType>(name: string, que
 
   return {
     watchAll,
+    findById,
     create,
-    destroy
+    destroy,
+    update
   }
 }

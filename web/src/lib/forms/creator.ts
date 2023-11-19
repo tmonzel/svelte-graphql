@@ -1,18 +1,8 @@
-import { derived, writable, type Readable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import type { Form, FormSchema, FormState, FormValidationError } from './types';
 import { FormControl } from './form-control';
 
-export class FormHandler {
-  constructor(readonly state: Readable<FormState>) {
-
-  }
-
-  submit(): void {
-    console.log("submit");
-  }
-}
-
-export function createForm<T extends FormSchema>(schema: T): Form<T> {
+export function createForm<T extends FormSchema, ValueType = any>(schema: T): Form<T, ValueType> {
   const form = writable<T>(schema);
   const state = derived(form, (schema) => {
     let errors: FormValidationError[] = [];
@@ -40,7 +30,7 @@ export function createForm<T extends FormSchema>(schema: T): Form<T> {
       touched,
       value,
       submittable
-    } satisfies FormState as FormState;
+    } satisfies FormState<ValueType> as FormState<ValueType>;
   });
 
   function walkControls(schema: FormSchema, writer: (control: FormControl, path: string) => FormControl): any {
