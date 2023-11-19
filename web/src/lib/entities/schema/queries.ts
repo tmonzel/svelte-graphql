@@ -5,6 +5,7 @@ export const SCHEMA_FIELDS = gql`
   fragment SchemaFields on Schema {
     id
     name
+    collectionName
     description
     attributes {
       type

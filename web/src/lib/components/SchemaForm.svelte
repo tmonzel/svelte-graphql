@@ -9,6 +9,7 @@
 
   type SchemaFormModel = {
     name: FormControl<string>;
+    collectionName: FormControl<string>;
     description: FormControl<string>;
     attributes: { 
       name: FormControl<string>; 
@@ -19,6 +20,7 @@
 
   const { form, state, markAllAsTouched } = createForm<SchemaFormModel, SchemaInput>({
     name: new FormControl(input ? input.name : '', Validators.required()),
+    collectionName: new FormControl(input ? input.collectionName : '', Validators.required()),
     description: new FormControl(input ? input.description : ''),
     attributes: []
   });
@@ -86,10 +88,14 @@
   </div>
 
   <div class="mb-3">
+    <FormInput bind:control={$form.collectionName} placeholder="Schema collection name" label="Collection name" />
+  </div>
+
+  <div class="mb-3">
     <FormInput bind:control={$form.description} placeholder="Schema description" label="Description" />
   </div>
 
-  <hr>
+  <hr class="my-4">
 
   {#each $form.attributes as attr, i}
   <div class="mb-3">
