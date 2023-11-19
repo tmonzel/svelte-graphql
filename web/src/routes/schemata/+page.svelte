@@ -5,13 +5,21 @@
 	import { onMount } from 'svelte';
 
   let schemata: Schema[] = [];
-	let dialog: Modal;
+	let schemaDialog: Modal;
+	let deleteConfirmDialog: Modal;
 	let form: SchemaForm;
 	let isSubmittable = true;
 	let input: SchemaInput | undefined;
+	let selectedSchema: Schema;
 
-	async function deleteSchema(id: string) {
+	async function confirmDelete(id: string) {
 		await SchemaEntity.destroy(id);
+		deleteConfirmDialog.close();
+	}
+
+	function openDeleteDialog(schema: Schema) {
+		selectedSchema = schema;
+		deleteConfirmDialog.open();
 	}
 
 	function openDialog(schema?: SchemaInput) {
@@ -21,7 +29,7 @@
 			input = undefined;
 		}
 
-		dialog.open();
+		schemaDialog.open();
 	}
 
   onMount(() => {
@@ -57,7 +65,7 @@
 					<button class="btn btn-light btn-sm" on:click={() => openDialog(schema)}>
 						Edit
 					</button>
-					<button class="btn btn-light btn-sm" on:click={() => deleteSchema(schema.id)}>
+					<button class="btn btn-light btn-sm" on:click={() => openDeleteDialog(schema)}>
 						Delete
 					</button>
 				</div>
@@ -65,28 +73,25 @@
 		</div>
 		{/each}
 	</div>
+	
+	<Modal bind:this={deleteConfirmDialog} size="sm">
+		<svelte:fragment slot="title">
+			Confirm delete
+		</svelte:fragment>
+		Are you really want to delete <strong>{selectedSchema.name}</strong> schema?
+		<svelte:fragment slot="footer">
+			<button type="button" class="btn btn-secondary" on:click={() => deleteConfirmDialog.close()}>No</button>
+			<button 
+				type="button" 
+				class="btn btn-danger" 
+				on:click={() => confirmDelete(selectedSchema.id)} 
+			>
+			Yes, delete!
+			</button>
+		</svelte:fragment>
+	</Modal>
 
-  <!--<ul class="list-group mb-3">
-		{#each schemata as schema}
-		<li class="list-group-item d-flex align-items-center justify-content-between">
-			{schema.id} / 
-			{schema.name} 
-			<div>
-				<a class="btn p-0" href="/schemata/{schema.id}">
-					<span class="material-icons">article</span>
-				</a>
-				<button class="btn p-0" on:click={() => openDialog(schema)}>
-					<span class="material-icons">edit</span>
-				</button>
-				<button class="btn p-0" on:click={() => deleteSchema(schema.id)}>
-					<span class="material-icons">delete</span>
-				</button>
-			</div>
-		</li>
-		{/each}
-	</ul>-->
-
-	<Modal bind:this={dialog} size="lg">
+	<Modal bind:this={schemaDialog} size="lg">
 		<svelte:fragment slot="title">
 			{#if input}
 				Edit schema
@@ -99,11 +104,11 @@
 			bind:this={form} 
 			bind:submittable={isSubmittable}
 			{input}
-			on:success={() => dialog.close()}
+			on:success={() => schemaDialog.close()}
 		/>
 		
 		<svelte:fragment slot="footer">
-			<button type="button" class="btn btn-secondary" on:click={() => dialog.close()}>Cancel</button>
+			<button type="button" class="btn btn-secondary" on:click={() => schemaDialog.close()}>Cancel</button>
 			<button 
 				type="button" 
 				class="btn btn-primary" 
