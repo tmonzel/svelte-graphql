@@ -5,16 +5,16 @@
   export let value: any = null;
   export let control: FormControl;
   export let options: { value: any; name: string; }[] = [];
-  export let touched = false;
 
   const id = crypto.randomUUID();
 
   function handleChange(e: Event) {
     value = (e.target as any).value;
+    control = control.handleChange(value);
   }
 
   function handleTouched(e: Event) {
-    touched = true;
+    control.touched = true;
   }
 </script>
 
@@ -24,13 +24,13 @@
 <select 
   id="formField_{id}"  
   class="form-select"
-  class:is-invalid={touched && !control.valid}
-  class:is-valid={touched && control.valid}
+  class:is-invalid={control.touched && !control.valid}
+  class:is-valid={control.touched && control.valid}
   on:change={handleChange} 
   on:blur={handleTouched}
 >
   {#each options as opt}
-    <option value={opt.value} selected={opt.value === value}>{opt.name}</option>
+    <option value={opt.value} selected={opt.value === control.value}>{opt.name}</option>
   {/each}
 </select>
 <div class="invalid-feedback">

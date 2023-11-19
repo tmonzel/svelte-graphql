@@ -1,51 +1,81 @@
-import { writable } from 'svelte/store';
-import type { Form } from './types';
-import type { FormControl } from './form-control';
+import { derived, writable, type Readable } from 'svelte/store';
+import type { Form, FormSchema, FormState, FormValidationError } from './types';
+import { FormControl } from './form-control';
 
-export interface FormSchema {
-  [name: string]: FormControl | (() => FormSchema) | FormSchema;
+export class FormHandler {
+  constructor(readonly state: Readable<FormState>) {
+
+  }
+
+  submit(): void {
+    console.log("submit");
+  }
 }
 
-export function createForm<T extends object>(schema: FormSchema, initialValue: T): Form<T> {
-  const form = writable<any>({});
-  const value = writable(initialValue);
-  const isValid = writable<boolean>(true);
-  const { subscribe, update, set: _set } = value;
+export function createForm<T extends FormSchema>(schema: T): Form<T> {
+  const form = writable<T>(schema);
+  const state = derived(form, (schema) => {
+    let errors: FormValidationError[] = [];
+    let touched = false;
+    let submittable = true;
 
-  function validate(value: any, validationSchema: FormSchema): { [key: string]: any }  {
-    const resultValue: { [key: string]: any } = {};
+    const value = walkControls(schema, (control, path) => {
+      if(control.errorMessage) {
+        errors = [...errors, { name: path, message: control.errorMessage! }]
+      }
 
-    for(const key in value) {
-      const val = value[key] as any;
-      const validators = validationSchema[key];
-        
-      if(Array.isArray(val)) {
-        resultValue[key] = val.map((v) => validate(v, typeof validators === 'function' ? validators() : {}));
-      } else if(typeof val === 'object') {
-        resultValue[key] = validate(val, validationSchema);
+      if(control.touched) {
+        touched = true;
+
+        if(!control.valid) {
+          submittable = false;
+        }
+      }
+
+      return control.value;
+    });
+
+    return {
+      valid: errors.length === 0,
+      touched,
+      value,
+      submittable
+    } satisfies FormState as FormState;
+  });
+
+  function walkControls(schema: FormSchema, writer: (control: FormControl, path: string) => FormControl): any {
+    const result: any = {};
+
+    for(const [name, entry] of Object.entries(schema)) {
+      if(Array.isArray(entry)) {
+        result[name] = entry.map((v) => walkControls(v as FormSchema, writer));
+      } else if(entry instanceof FormControl) {
+        // Is concrete FormControl
+        result[name] = writer(entry, name);
+      } else if(typeof entry === 'object') {
+        result[name] = walkControls(entry as FormSchema, writer);
       } else {
-        const control = validationSchema[key] as FormControl;
-        control.validate(val);
-        
-        resultValue[key] = control;
+        // Do nothing atm
       }
     }
 
-    return resultValue; 
-  }
- 
-  function set(value: T) {
-    isValid.set(true);
-    form.set(validate(value, schema));
-
-    _set(value);
+    return result;
   }
 
-  set(initialValue);
+  function walkForm(walker: (control: FormControl) => FormControl): void {
+    form.update(schema => walkControls(schema, walker))
+  }
+
+  function markAllAsTouched(): void {
+    walkForm((control) => {
+      control.touched = true;
+      return control;
+    });
+  }
 
   return {
-    value: { subscribe, update, set },
     form,
-    isValid,
+    state,
+    markAllAsTouched,
   };
 }

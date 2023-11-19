@@ -1,38 +1,38 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
   import { FormInput, FormSelect } from '$lib/forms/components'; 
 	import { FormControl, Validators, createForm } from '$lib/forms';
-	import { SchemaEntity } from '$lib/entities/schema';
+	import type { SchemaInput } from '$lib/entities/schema';
 
-  const dispatch = createEventDispatcher();
+  export let submittable = true;
+  export let value: Partial<SchemaInput> = {};
 
-  export let valid = true;
-  export let submitted = false;
-
-  type Schema = {
-    name: string;
-    attributes: { name: string; type: string, required: boolean }[];
+  type SchemaFormModel = {
+    name: FormControl<string>;
+    attributes: { 
+      name: FormControl<string>; 
+      type: FormControl<string>, 
+      required: FormControl<string> 
+    }[];
   }
 
-  const { form, value, isValid } = createForm<Schema>({
-    name: new FormControl(Validators.required()),
-    attributes: () => {
-      return {
-        name: new FormControl(Validators.required()),
-        type: new FormControl(Validators.required()),
-        required: new FormControl(),
-      }
-    }
-  }, {
-    name: '',
+  const { form, state, markAllAsTouched } = createForm<SchemaFormModel>({
+    name: new FormControl(value.name ?? '', Validators.required()),
     attributes: []
   });
+  
 
-  $: valid = $isValid;
-
-  function addAttribute() {
-    $value.attributes = [...$value.attributes, { name: '', type: 'text', required: true }];
+  function addAttribute(defaults = { type: 'text', name: '', required: true }) {
+    $form.attributes = [
+      ...$form.attributes, 
+      { 
+        name: new FormControl(defaults.name, Validators.required()), 
+        type: new FormControl(defaults.type, Validators.required()), 
+        required: new FormControl(defaults.required, Validators.required()) 
+      }
+    ];
   }
+
+  $: submittable = $state.submittable;
 
   const attributeTypes = [
     {
@@ -43,51 +43,37 @@
       name: 'Number',
       value: 'number'
     }
-  ]
-  
-  
-  export const submit = async() => {
-    submitted = true;
+  ];
 
-    if(!valid) {
-      // Data is not valid
-      return;
-    }
+	export const submit = async() => {
+		if(!$state.valid) {
+			// Data is not valid
+			markAllAsTouched();
+			return;
+		}
 
-    await SchemaEntity.create($form);
-    dispatch('success', $form);
-  }
+		//await SchemaEntity.create($form);
+	};
 </script>
 
 <div>
   <div class="mb-3">
-    <FormInput 
-      bind:value={$value.name} 
-      bind:control={$form.name}  
-      placeholder="Schema name" 
-    />
+    <FormInput bind:control={$form.name} placeholder="Schema name" />
   </div>
 
-  {#each $value.attributes as attr, i}
+  {#each $form.attributes as attr, i}
   <div class="mb-3">
     <h6>Attribut {i + 1}</h6>
     <div class="row">
       <div class="col">
-        <FormSelect 
-          bind:value={attr.type} 
-          bind:control={$form.attributes[i].type}
-          options={attributeTypes} 
-        />
+        <FormSelect bind:control={attr.type} options={attributeTypes} />
       </div>
       <div class="col">
-        <FormInput 
-          bind:value={attr.name} 
-          bind:control={$form.attributes[i].name}
-        />
+        <FormInput bind:control={attr.name} />
       </div>
     </div>
   </div>
   {/each}
 
-  <button class="btn btn-light" on:click={addAttribute}>Add field</button>
+  <button class="btn btn-light" on:click={() => addAttribute()}>Add Attribute</button>
 </div>

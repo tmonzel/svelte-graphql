@@ -6,16 +6,16 @@
   export let type = 'text';
   export let value: any = null;
   export let control: FormControl;
-  export let touched = false;
 
   const id = crypto.randomUUID();
 
   function handleChange(e: Event) {
     value = (e.target as HTMLInputElement).value;
+    control = control.handleChange(value);
   }
 
   function handleTouched(e: Event) {
-    touched = true;
+    control.touched = true;
   }
 </script>
 
@@ -26,12 +26,12 @@
   id="formField_{id}" 
   {type} 
   class="form-control"
-  class:is-invalid={touched && !control.valid}
-  class:is-valid={touched && control.valid}
+  class:is-invalid={control.touched && !control.valid}
+  class:is-valid={control.touched && control.valid}
   on:input={handleChange}
   on:change={handleChange}
   on:blur={handleTouched}
-  {value} 
+  value={control.value} 
   placeholder={placeholder}
 >
 <div class="invalid-feedback">

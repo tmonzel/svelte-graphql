@@ -5,9 +5,9 @@
 	import { onMount } from 'svelte';
 
   let schemata: Schema[] = [];
-	let modalOpened = false;
-	let schemaForm: SchemaForm;
-	let isFormValid = true;
+	let createModal: Modal;
+	let form: SchemaForm;
+	let isSubmittable = true;
 
   onMount(() => {
 		SchemaEntity.watchAll().subscribe(list => schemata = list.sort((a, b) => {
@@ -20,12 +20,12 @@
 			}
 
 			return 0;
-		}))
+		}));
 	})
 </script>
 
 <div>
-	<button class="btn btn-primary mb-3" on:click={() => modalOpened = true}>+ Add Schema</button>
+	<button class="btn btn-primary mb-3" on:click={() => createModal.open()}>+ Add Schema</button>
 
   <ul class="list-group mb-3">
 		{#each schemata as schema}
@@ -39,21 +39,19 @@
 		{/each}
 	</ul>
 
-	<Modal open={modalOpened} size="lg">
-		<div class="modal-header">
-			<h5 class="modal-title">Add new schemata</h5>
-			<button type="button" class="btn-close" aria-label="Close" on:click={() => modalOpened = false}></button>
-		</div>
-		<div class="modal-body">
-			<SchemaForm 
-				bind:valid={isFormValid}
-				bind:this={schemaForm} 
-				on:success={() => modalOpened = false} 
-			/>
-		</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" on:click={() => modalOpened = false}>Close</button>
-			<button type="button" class="btn btn-primary" on:click={() => schemaForm.submit()} disabled={!isFormValid}>Save changes</button>
-		</div>
+	<Modal bind:this={createModal} size="lg">
+		<svelte:fragment slot="title">
+			Add new schema
+		</svelte:fragment>
+		
+		<SchemaForm 
+			bind:this={form} 
+			bind:submittable={isSubmittable} 
+		/>
+		
+		<svelte:fragment slot="footer">
+			<button type="button" class="btn btn-secondary" on:click={() => createModal.close()}>Close</button>
+			<button type="button" class="btn btn-primary" on:click={() => form.submit()} disabled={!isSubmittable}>Save changes</button>
+		</svelte:fragment>
 	</Modal>
 </div>

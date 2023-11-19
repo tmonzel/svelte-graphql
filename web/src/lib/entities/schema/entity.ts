@@ -5,11 +5,11 @@ export interface Schema extends Entity {
   name: string;
 }
 
-export type CreateSchemaInput = {
+export type SchemaInput = {
   name: string;
 }
 
-export const SchemaEntity = createEntity<Schema, CreateSchemaInput>(
+export const SchemaEntity = createEntity<Schema, SchemaInput>(
 	'schemata', 
 	queryMap
 );
