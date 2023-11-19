@@ -3,6 +3,7 @@ import { createEntity, type Entity } from '$lib/entity';
 
 export interface Schema extends Entity {
   name: string;
+  description?: string;
   attributes: SchemaAttribute[];
 }
 
@@ -15,6 +16,7 @@ export interface SchemaAttribute {
 export type SchemaInput = {
   id?: string;
   name: string;
+  description?: string;
   attributes: SchemaAttribute[];
 }
 

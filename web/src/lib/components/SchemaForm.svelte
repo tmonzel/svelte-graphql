@@ -9,6 +9,7 @@
 
   type SchemaFormModel = {
     name: FormControl<string>;
+    description: FormControl<string>;
     attributes: { 
       name: FormControl<string>; 
       type: FormControl<string>, 
@@ -18,6 +19,7 @@
 
   const { form, state, markAllAsTouched } = createForm<SchemaFormModel, SchemaInput>({
     name: new FormControl(input ? input.name : '', Validators.required()),
+    description: new FormControl(input ? input.description : ''),
     attributes: []
   });
   
@@ -80,8 +82,14 @@
 
 <div>
   <div class="mb-3">
-    <FormInput bind:control={$form.name} placeholder="Schema name" />
+    <FormInput bind:control={$form.name} placeholder="Schema name" label="Name" />
   </div>
+
+  <div class="mb-3">
+    <FormInput bind:control={$form.description} placeholder="Schema description" label="Description" />
+  </div>
+
+  <hr>
 
   {#each $form.attributes as attr, i}
   <div class="mb-3">

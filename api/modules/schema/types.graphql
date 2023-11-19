@@ -1,6 +1,7 @@
 type Schema {
   id: ID!
   name: String!
+  description: String
   attributes: [SchemaAttribute]
 }
 
@@ -22,11 +23,13 @@ input SchemaAttributeInput {
 
 input CreateSchemaInput {
   name: String!
+  description: String
   attributes: [SchemaAttributeInput]
 }
 
 input UpdateSchemaInput {
   name: String
+  description: String
   attributes: [SchemaAttributeInput]
 }
 

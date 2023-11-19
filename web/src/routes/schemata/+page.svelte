@@ -50,7 +50,9 @@
 				<div class="card-body">
 					<h5 class="card-title">{schema.name}</h5>
 					<h6 class="card-subtitle mb-2 text-body-secondary">{schema.id}</h6>
-					<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+					{#if schema.description}
+						<p class="card-text">{schema.description}</p>
+					{/if}
 					<a href="/schemata/{schema.id}" class="btn btn-secondary btn-sm">View</a>
 					<button class="btn btn-light btn-sm" on:click={() => openDialog(schema)}>
 						Edit
