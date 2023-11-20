@@ -2,6 +2,7 @@
 	import DocumentForm from './DocumentForm.svelte';
   import Modal from '$lib/components/Modal.svelte';
 	import { getDocumentEntity } from '$lib/entities/document';
+	import { onMount } from 'svelte';
 
   export let data;
 
@@ -18,9 +19,11 @@
 
   let entityModel = getDocumentEntity(data.schema.collectionName);
 
-  entityModel.watchAll().subscribe(items => {
-    documents = items;
-  });
+  onMount(() => {
+    entityModel.watchAll().subscribe(items => {
+      documents = items;
+    });
+  })
 </script>
 
 <div class="page-options">
@@ -61,6 +64,12 @@
     {/each}
   </tbody>
 </table>
+
+{#if documents.length === 0 }
+<div class="alert alert-warning">
+  No entries yet
+</div>
+{/if}
 
 <Modal bind:this={formDialog} size="lg">
   <svelte:fragment slot="title">

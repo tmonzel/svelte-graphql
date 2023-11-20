@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { notify } from '$lib/notification';
 	import SchemaForm from '../SchemaForm.svelte';
 
   let form: SchemaForm;
@@ -19,5 +20,8 @@
 <SchemaForm 
   bind:this={form} 
   bind:submittable={isSubmittable}
-  on:success={() => goto('/')}
+  on:success={() => {
+    notify({ type: 'success', message: 'Schema successfully created' });
+    goto('/')
+  }}
 />
