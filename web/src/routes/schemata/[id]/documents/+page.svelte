@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DocumentForm from '$lib/components/DocumentForm.svelte';
+	import DocumentForm from './DocumentForm.svelte';
   import Modal from '$lib/components/Modal.svelte';
 	import { getDocumentEntity } from '$lib/entities/document';
 
@@ -7,8 +7,14 @@
 
   let form: DocumentForm;
   let formDialog: Modal;
-  let isSubmittable = true;
+  let submittable = true;
   let documents: any[] = [];
+  let selectedDocument: Document | null;
+
+  function openFormDialog(doc: Document | null = null): void {
+    selectedDocument = doc;
+    formDialog.open();
+  }
 
   let entityModel = getDocumentEntity(data.schema.collectionName);
 
@@ -24,7 +30,7 @@
       Schemata
     </div>
   </a>
-  <button class="btn btn-primary mb-3" on:click={() => formDialog.open()}>+ Add {data.schema.name}</button>
+  <button class="btn btn-primary mb-3" on:click={() => openFormDialog()}>+ Add {data.schema.name}</button>
 </div>
 
 <h1 class="my-4">{data.schema.name}</h1>
@@ -32,17 +38,25 @@
 <table class="table">
   <thead>
     <tr>
+      <th>#</th>
       {#each data.schema.attributes as attr}
-      <th>{attr.name}</th>
+      <th>{attr.label}</th>
       {/each}
+      <th></th>
     </tr>
   </thead>
   <tbody>
     {#each documents as doc}
     <tr>
+      <td style="width: 20%;">{doc.id}</td>
       {#each data.schema.attributes as attr}
-      <td>{doc[attr.name]}</td>
+      <td>{doc[attr.name] ?? '-'}</td>
       {/each}
+      <td style="max-width: 20px">
+        <button class="btn p-0 d-flex" on:click={() => openFormDialog(doc)}>
+          <span class="material-icons">edit</span>
+        </button>
+      </td>
     </tr>
     {/each}
   </tbody>
@@ -50,10 +64,20 @@
 
 <Modal bind:this={formDialog} size="lg">
   <svelte:fragment slot="title">
-    Add new {data.schema.name}
+    {#if selectedDocument}
+      Edit {data.schema.name}
+    {:else}
+      Add new {data.schema.name}
+    {/if}
   </svelte:fragment>
 
-  <DocumentForm bind:this={form} schema={data.schema}></DocumentForm>
+  <DocumentForm 
+    bind:this={form}
+    bind:submittable
+    schema={data.schema} 
+    input={selectedDocument}
+    on:success={() => formDialog.close()}
+  />
   
   <svelte:fragment slot="footer">
     <button type="button" class="btn btn-secondary" on:click={() => formDialog.close()}>Cancel</button>
@@ -61,9 +85,13 @@
       type="button" 
       class="btn btn-primary" 
       on:click={() => form.submit()}
-      disabled={!isSubmittable}
+      disabled={!submittable}
     >
+    {#if selectedDocument}
+      Save {data.schema.name}
+    {:else}
       Create {data.schema.name}
+    {/if}
     </button>
   </svelte:fragment>
 </Modal>

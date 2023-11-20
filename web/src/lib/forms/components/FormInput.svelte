@@ -7,6 +7,7 @@
   export let value: any = null;
   export let control: FormControl;
   export let disabled = false;
+  export let readonly = false;
   export let hint: string | null = null;
 
   const id = crypto.randomUUID();
@@ -21,27 +22,30 @@
   }
 </script>
 
-{#if label}
-<label for="formField_{id}" class="form-label">{label}</label>
-{/if}
-<input 
-  id="formField_{id}" 
-  {type} 
-  class="form-control"
-  class:is-invalid={control.touched && !control.valid}
-  class:is-valid={control.touched && control.valid}
-  on:input={handleChange}
-  on:change={handleChange}
-  on:blur={handleTouched}
-  {disabled}
-  value={control.value} 
-  placeholder={placeholder}
->
-<div class="invalid-feedback">
-  {control.errorMessage} 
+<div class={$$props.class}>
+  {#if label}
+  <label for="formField_{id}" class="form-label">{label}</label>
+  {/if}
+  <input 
+    id="formField_{id}" 
+    {type} 
+    class="form-control"
+    class:is-invalid={control.touched && !control.valid}
+    class:is-valid={control.touched && control.valid}
+    on:input={handleChange}
+    on:change={handleChange}
+    on:blur={handleTouched}
+    {disabled}
+    {readonly}
+    value={control.value ?? null} 
+    placeholder={placeholder}
+  >
+  <div class="invalid-feedback">
+    {control.errorMessage} 
+  </div>
+  {#if hint}
+  <div class="form-text">
+    {hint}
+  </div>
+  {/if}
 </div>
-{#if hint}
-<div class="form-text">
-  {hint}
-</div>
-{/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import SchemaForm from '$lib/components/SchemaForm.svelte';
+	import SchemaForm from '../SchemaForm.svelte';
 
   let form: SchemaForm;
   let isSubmittable = true;

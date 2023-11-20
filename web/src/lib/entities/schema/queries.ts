@@ -10,6 +10,7 @@ export const SCHEMA_FIELDS = gql`
     attributes {
       type
       name
+      label
       required
     }
   }

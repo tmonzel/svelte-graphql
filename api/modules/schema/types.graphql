@@ -3,12 +3,13 @@ type Schema {
   name: String!
   collectionName: String!
   description: String
-  attributes: [SchemaAttribute]
+  attributes: [Attribute]
 }
 
-type SchemaAttribute {
+type Attribute {
   type: String!
   name: String!
+  label: String!
   required: Boolean
 }
 
@@ -16,9 +17,10 @@ type SchemaQueries {
   list: [Schema]!
 }
 
-input SchemaAttributeInput {
+input AttributeInput {
   type: String!
   name: String!
+  label: String!
   required: Boolean!
 }
 
@@ -26,14 +28,14 @@ input CreateSchemaInput {
   name: String!
   collectionName: String!
   description: String
-  attributes: [SchemaAttributeInput]
+  attributes: [AttributeInput]
 }
 
 input UpdateSchemaInput {
   name: String
   collectionName: String
   description: String
-  attributes: [SchemaAttributeInput]
+  attributes: [AttributeInput]
 }
 
 type SchemaMutations {

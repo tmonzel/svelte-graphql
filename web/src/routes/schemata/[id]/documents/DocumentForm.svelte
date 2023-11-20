@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { getDocumentEntity } from '$lib/entities/document';
+	import { getDocumentEntity, type DocumentInput } from '$lib/entities/document';
 	import type { Schema } from '$lib/entities/schema';
 	import { FormControl, Validators, createForm } from '$lib/forms';
 	import FormInput from '$lib/forms/components/FormInput.svelte';
+	import { createEventDispatcher } from 'svelte';
 
   export let schema: Schema;
+  export let submittable = true;
+  export let input: DocumentInput | null = null;
 
   type DocumentModel = {
     collectionName: FormControl<string>;
@@ -14,10 +17,11 @@
   const { form, state, markAllAsTouched } = createForm<DocumentModel>({
     collectionName: new FormControl(schema.collectionName),
     attributes: schema.attributes.map(attr => {
-      return new FormControl('', attr.required ? Validators.required() : []);
+      return new FormControl(input ? input[attr.name] : '', attr.required ? Validators.required() : []);
     })
   });
 
+  const dispatch = createEventDispatcher();
   const entity = getDocumentEntity(schema.collectionName);
 
   export const submit = async() => {
@@ -32,14 +36,22 @@
       value[attr.name] = $state.value.attributes[i];
     });
 
-    await entity.create(value);
+    if(input && input.id) {
+      await entity.update(input.id, value);
+    } else {
+      await entity.create(value);
+    }
+
+    dispatch('success', $state.value);
   }
+
+  $: submittable = $state.submittable;
 </script>
 
 <div>
   {#each $form.attributes as attr, i}
   <div class="mb-3">
-    <FormInput bind:control={attr} label={schema.attributes[i]?.name}></FormInput>
+    <FormInput bind:control={attr} label={schema.attributes[i]?.label}></FormInput>
   </div>
   {/each}
 </div>

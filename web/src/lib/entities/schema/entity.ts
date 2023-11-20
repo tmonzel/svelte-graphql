@@ -5,12 +5,13 @@ export interface Schema extends Entity {
   name: string;
   collectionName: string;
   description: string;
-  attributes: SchemaAttribute[];
+  attributes: Attribute[];
 }
 
-export interface SchemaAttribute {
+export interface Attribute {
   type: string;
   name: string;
+  label: string;
   required: boolean;
 }
 
@@ -19,7 +20,7 @@ export type SchemaInput = {
   name: string;
   collectionName: string;
   description: string;
-  attributes: SchemaAttribute[];
+  attributes: Attribute[];
 }
 
 export const SchemaEntity = createEntity<Schema, SchemaInput>(

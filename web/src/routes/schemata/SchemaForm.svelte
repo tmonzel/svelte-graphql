@@ -1,8 +1,9 @@
 <script lang="ts">
   import { FormInput, FormSelect } from '$lib/forms/components'; 
 	import { FormControl, Validators, createForm } from '$lib/forms';
-	import { SchemaEntity, type SchemaInput } from '$lib/entities/schema';
+	import { SchemaEntity, type Attribute, type SchemaInput } from '$lib/entities/schema';
 	import { createEventDispatcher } from 'svelte';
+	import FormCheckbox from '$lib/forms/components/FormCheckbox.svelte';
 
   export let submittable = true;
   export let dirty = false;
@@ -15,9 +16,10 @@
     collectionName: FormControl<string>;
     description: FormControl<string>;
     attributes: { 
-      name: FormControl<string>; 
-      type: FormControl<string>, 
-      required: FormControl<boolean> 
+      name: FormControl<string>;
+      label: FormControl<string>;
+      type: FormControl<string>;
+      required: FormControl<boolean>; 
     }[];
   }
 
@@ -29,13 +31,14 @@
   });
   
 
-  function addAttribute(defaults = { type: 'text', name: '', required: true }) {
+  function addAttribute(attr: Attribute) {
     $form.attributes = [
       ...$form.attributes, 
       { 
-        name: new FormControl(defaults.name, Validators.required()), 
-        type: new FormControl(defaults.type, Validators.required()), 
-        required: new FormControl(defaults.required, Validators.required()) 
+        name: new FormControl(attr.name, Validators.required()),
+        label: new FormControl(attr.label, Validators.required()),
+        type: new FormControl(attr.type, Validators.required()), 
+        required: new FormControl(attr.required, Validators.required()) 
       }
     ];
   }
@@ -113,11 +116,13 @@
   <div class="mb-3">
     <h6>Attribut {i + 1}</h6>
     <div class="row">
-      <div class="col-md-3">
+      <div class="col" style="max-width: 200px;">
         <FormSelect bind:control={attr.type} options={attributeTypes} />
       </div>
       <div class="col">
-        <FormInput bind:control={attr.name} />
+        <FormInput bind:control={attr.name} class="mb-3" placeholder="Name" />
+        <FormInput bind:control={attr.label} class="mb-3" placeholder="Label" />
+        <FormCheckbox bind:control={attr.required} label="Required" />
       </div>
       <div class="col col-auto">
         <button class="btn p-0" on:click={() => removeAttribute(i)}>
@@ -128,5 +133,5 @@
   </div>
   {/each}
 
-  <button class="btn btn-light" on:click={() => addAttribute()}>Add Attribute</button>
+  <button class="btn btn-light" on:click={() => addAttribute({ type: 'text', name: '', label: '', required: true })}>Add Attribute</button>
 </div>
