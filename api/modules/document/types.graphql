@@ -1,0 +1,13 @@
+scalar Document
+scalar DocumentInput
+scalar DocumentList
+
+type DocumentQueries {
+  list(collectionName: String!): DocumentList!
+}
+
+type DocumentMutations {
+  create(collectionName: String!, input: DocumentInput!): Document
+  update(collectionName: String!, id: ID!, changes: DocumentInput!): Document
+  delete(collectionName: String!, id: ID!): Boolean
+}

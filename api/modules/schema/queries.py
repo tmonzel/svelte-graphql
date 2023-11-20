@@ -10,7 +10,7 @@ def mapEntity(entity):
     return entity;
 
 @query.field('schemata')
-def resolve_schemata_queries(obj, info):
+def resolve_schema_queries(obj, info):
   return schema_queries
 
 @schema_queries.field('list')

@@ -17,12 +17,20 @@ from modules.schema import (
     schema_mutations
 )
 
+from modules.document import (
+    document_type,
+    document_type_defs,
+    document_queries,
+    document_mutations,
+    document_list_type
+)
+
 app = Flask(__name__)
 CORS(app)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    [type_defs, collection_type_defs, schema_type_defs], 
+    [type_defs, collection_type_defs, schema_type_defs, document_type_defs], 
     query, 
     mutation,
 
@@ -32,7 +40,12 @@ schema = make_executable_schema(
 
     schema_type,
     schema_queries,
-    schema_mutations
+    schema_mutations,
+
+    document_type,
+    document_queries,
+    document_mutations,
+    document_list_type
 )
 
 @app.route("/graphql", methods=["POST"])

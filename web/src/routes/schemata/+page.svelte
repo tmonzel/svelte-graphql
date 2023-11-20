@@ -61,7 +61,7 @@
 					{#if schema.description}
 						<p class="card-text">{schema.description}</p>
 					{/if}
-					<a href="/schemata/{schema.id}" class="btn btn-secondary btn-sm">View</a>
+					<a href="/schemata/{schema.id}" class="btn btn-secondary btn-sm">Documents</a>
 					<button class="btn btn-light btn-sm" on:click={() => openDialog(schema)}>
 						Edit
 					</button>

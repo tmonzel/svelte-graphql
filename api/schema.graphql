@@ -1,9 +1,11 @@
 type Query {
   collections: CollectionQueries!
   schemata: SchemaQueries!
+  documents: DocumentQueries!
 }
 
 type Mutation {
   collections: CollectionMutations!
   schemata: SchemaMutations!
+  documents: DocumentMutations!
 }

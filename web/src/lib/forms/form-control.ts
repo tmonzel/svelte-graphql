@@ -6,16 +6,16 @@ export class FormControl<T = any> {
   dirty: boolean = false;
   errorMessage?: string;
   valid = true;
-  value: any;
+  value: T;
 
-  constructor(initialValue: any = null, validators: Validator | Validator[] = []) {
+  constructor(initialValue: T, validators: Validator | Validator[] = []) {
     this.value = initialValue;
     this.validators = Array.isArray(validators) ? validators : [validators];
 
     this.handleChange(initialValue);
   }
 
-  handleChange(value: any): FormControl<T> {
+  handleChange(value: T): FormControl<T> {
     this.value = value;
     this.valid = true;
 
@@ -26,7 +26,6 @@ export class FormControl<T = any> {
 
       if(!result.valid) {
         this.errorMessage = result.errorMessage;
-        
         this.valid = false;
         break;
       }
