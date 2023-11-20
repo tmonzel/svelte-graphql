@@ -6,6 +6,8 @@
   export let type = 'text';
   export let value: any = null;
   export let control: FormControl;
+  export let disabled = false;
+  export let hint: string | null = null;
 
   const id = crypto.randomUUID();
 
@@ -31,9 +33,15 @@
   on:input={handleChange}
   on:change={handleChange}
   on:blur={handleTouched}
+  {disabled}
   value={control.value} 
   placeholder={placeholder}
 >
 <div class="invalid-feedback">
   {control.errorMessage} 
 </div>
+{#if hint}
+<div class="form-text">
+  {hint}
+</div>
+{/if}

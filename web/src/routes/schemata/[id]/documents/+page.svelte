@@ -15,16 +15,6 @@
   entityModel.watchAll().subscribe(items => {
     documents = items;
   });
-
-  /*client.watchQuery({ 
-    query: queryMap.list, 
-    variables: { collectionName: data.schema.collectionName } 
-  }).map(result => {
-    result.data.documents.list as any[]
-  }).subscribe(documents => {
-    console.log(documents);
-    
-  })*/
 </script>
 
 <div class="page-options">
@@ -37,27 +27,26 @@
   <button class="btn btn-primary mb-3" on:click={() => formDialog.open()}>+ Add {data.schema.name}</button>
 </div>
 
-<div>
-  <h1>{data.schema.name}</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        {#each data.schema.attributes as attr}
-        <th>{attr.name}</th>
-        {/each}
-      </tr>
-    </thead>
-    <tbody>
-      {#each documents as doc}
-      <tr>
-        {#each data.schema.attributes as attr}
-        <td>{doc[attr.name]}</td>
-        {/each}
-      </tr>
+<h1 class="my-4">{data.schema.name}</h1>
+  
+<table class="table">
+  <thead>
+    <tr>
+      {#each data.schema.attributes as attr}
+      <th>{attr.name}</th>
       {/each}
-    </tbody>
-  </table>
-</div>
+    </tr>
+  </thead>
+  <tbody>
+    {#each documents as doc}
+    <tr>
+      {#each data.schema.attributes as attr}
+      <td>{doc[attr.name]}</td>
+      {/each}
+    </tr>
+    {/each}
+  </tbody>
+</table>
 
 <Modal bind:this={formDialog} size="lg">
   <svelte:fragment slot="title">

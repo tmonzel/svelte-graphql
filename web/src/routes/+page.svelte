@@ -1,15 +1,10 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import SchemaForm from '$lib/components/SchemaForm.svelte';
-	import { SchemaEntity, type Schema, type SchemaInput } from '$lib/entities/schema';
+	import { SchemaEntity, type Schema } from '$lib/entities/schema';
 	import { onMount } from 'svelte';
 
   let schemata: Schema[] = [];
-	let schemaDialog: Modal;
 	let deleteConfirmDialog: Modal;
-	let form: SchemaForm;
-	let isSubmittable = true;
-	let input: SchemaInput | undefined;
 	let selectedSchema: Schema;
 
 	async function confirmDelete(id: string) {
@@ -20,16 +15,6 @@
 	function openDeleteDialog(schema: Schema) {
 		selectedSchema = schema;
 		deleteConfirmDialog.open();
-	}
-
-	function openDialog(schema?: SchemaInput) {
-		if(schema) {
-			input = schema;
-		} else {
-			input = undefined;
-		}
-
-		schemaDialog.open();
 	}
 
   onMount(() => {
@@ -48,7 +33,7 @@
 </script>
 
 <div>
-	<button class="btn btn-primary mb-3" on:click={() => openDialog()}>+ Add Schema</button>
+	<a class="btn btn-primary mb-3" href="/schemata/new">+ Add Schema</a>
 
 	<div class="row">
 		{#each schemata as schema}
@@ -62,9 +47,9 @@
 						<p class="card-text">{schema.description}</p>
 					{/if}
 					<a href="/schemata/{schema.id}/documents" class="btn btn-secondary btn-sm">Documents</a>
-					<button class="btn btn-light btn-sm" on:click={() => openDialog(schema)}>
+					<a class="btn btn-light btn-sm" href="/schemata/{schema.id}/edit">
 						Edit
-					</button>
+					</a>
 					<button class="btn btn-light btn-sm" on:click={() => openDeleteDialog(schema)}>
 						Delete
 					</button>
@@ -87,39 +72,6 @@
 				on:click={() => confirmDelete(selectedSchema.id)} 
 			>
 			Yes, delete!
-			</button>
-		</svelte:fragment>
-	</Modal>
-
-	<Modal bind:this={schemaDialog} size="lg">
-		<svelte:fragment slot="title">
-			{#if input}
-				Edit schema
-			{:else}
-				Add new schema
-			{/if}
-		</svelte:fragment>
-		
-		<SchemaForm 
-			bind:this={form} 
-			bind:submittable={isSubmittable}
-			{input}
-			on:success={() => schemaDialog.close()}
-		/>
-		
-		<svelte:fragment slot="footer">
-			<button type="button" class="btn btn-secondary" on:click={() => schemaDialog.close()}>Cancel</button>
-			<button 
-				type="button" 
-				class="btn btn-primary" 
-				on:click={() => form.submit()} 
-				disabled={!isSubmittable}
-			>
-			{#if input}
-				Save changes
-			{:else}
-				Create schema
-			{/if}
 			</button>
 		</svelte:fragment>
 	</Modal>

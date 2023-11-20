@@ -7,11 +7,16 @@ export function createForm<T extends FormSchema, ValueType = any>(schema: T): Fo
   const state = derived(form, (schema) => {
     let errors: FormValidationError[] = [];
     let touched = false;
+    let dirty = false;
     let submittable = true;
 
     const value = walkControls(schema, (control, path) => {
       if(control.errorMessage) {
         errors = [...errors, { name: path, message: control.errorMessage! }]
+      }
+
+      if(control.dirty) {
+        dirty = true;
       }
 
       if(control.touched) {
@@ -28,6 +33,7 @@ export function createForm<T extends FormSchema, ValueType = any>(schema: T): Fo
     return {
       valid: errors.length === 0,
       touched,
+      dirty,
       value,
       submittable
     } satisfies FormState<ValueType> as FormState<ValueType>;

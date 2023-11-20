@@ -5,7 +5,10 @@
 	import { createEventDispatcher } from 'svelte';
 
   export let submittable = true;
+  export let dirty = false;
   export let input: SchemaInput | null = null;
+
+  let editMode = false;
 
   type SchemaFormModel = {
     name: FormControl<string>;
@@ -41,7 +44,9 @@
     $form.attributes = $form.attributes.filter((attr, i) => i !== index);
   }
 
-  if(input) {
+  if(input && input.id) {
+    editMode = true;
+    
     // Add attributes
     for(const attr of input.attributes) {
       addAttribute(attr);
@@ -49,6 +54,7 @@
   }
 
   $: submittable = $state.submittable;
+  $: dirty = $state.dirty;
 
   const attributeTypes = [
     {
@@ -88,7 +94,13 @@
   </div>
 
   <div class="mb-3">
-    <FormInput bind:control={$form.collectionName} placeholder="Schema collection name" label="Collection name" />
+    <FormInput 
+      bind:control={$form.collectionName} 
+      placeholder="Schema collection name" 
+      label="Collection name" 
+      disabled={editMode} 
+      hint={editMode ? 'Collection names are fix after creation' : null}
+    />
   </div>
 
   <div class="mb-3">

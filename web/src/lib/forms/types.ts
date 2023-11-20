@@ -21,6 +21,7 @@ export interface FormValidationError {
 export interface FormState<T> {
   valid: boolean;
   touched: boolean;
+  dirty: boolean;
   submittable: boolean;
   value: T;
 }
