@@ -14,7 +14,7 @@
     attributes: { 
       name: FormControl<string>; 
       type: FormControl<string>, 
-      required: FormControl<string> 
+      required: FormControl<boolean> 
     }[];
   }
 
