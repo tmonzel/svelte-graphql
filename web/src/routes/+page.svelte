@@ -1,68 +1,126 @@
 <script lang="ts">
+	import Modal from '$lib/components/Modal.svelte';
+	import SchemaForm from '$lib/components/SchemaForm.svelte';
+	import { SchemaEntity, type Schema, type SchemaInput } from '$lib/entities/schema';
 	import { onMount } from 'svelte';
-	import { collectionModel, type Collection } from '$lib/entities/collection';
 
-	let collections: Collection[] = [];
-	let newCollectionName: string;
+  let schemata: Schema[] = [];
+	let schemaDialog: Modal;
+	let deleteConfirmDialog: Modal;
+	let form: SchemaForm;
+	let isSubmittable = true;
+	let input: SchemaInput | undefined;
+	let selectedSchema: Schema;
 
-	async function createCollection() {
-		await collectionModel.create({ name: newCollectionName });
+	async function confirmDelete(id: string) {
+		await SchemaEntity.destroy(id);
+		deleteConfirmDialog.close();
 	}
 
-	async function dropCollection(name: string) {
-		await collectionModel.drop(name);
+	function openDeleteDialog(schema: Schema) {
+		selectedSchema = schema;
+		deleteConfirmDialog.open();
 	}
 
-	onMount(() => {
-		collectionModel.all$.subscribe(list => {
-			const sortedList = [...list].sort((a, b) => {
-				if(a.name < b.name) {
-					return -1;
-				}
+	function openDialog(schema?: SchemaInput) {
+		if(schema) {
+			input = schema;
+		} else {
+			input = undefined;
+		}
 
-				if(a.name > b.name) {
-					return 1;
-				}
+		schemaDialog.open();
+	}
 
-				return 0;
-			});
+  onMount(() => {
+		SchemaEntity.watchAll().subscribe(list => schemata = list.sort((a, b) => {
+			if(a.id < b.id) {
+				return -1;
+			}
 
-			collections = sortedList;
-		})
+			if(a.id > b.id) {
+				return 1;
+			}
+
+			return 0;
+		}));
 	})
-
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
 <div>
-	<h1>Collections</h1>
+	<button class="btn btn-primary mb-3" on:click={() => openDialog()}>+ Add Schema</button>
 
-	<p class="lead">Manage all of your collections</p>
+	<div class="row">
+		{#each schemata as schema}
+		<div class="col-md-4">
 
-	<ul class="list-group mb-3">
-		{#each collections as collection}
-		<li class="list-group-item d-flex align-items-center justify-content-between">{collection.name} 
-			<button class="btn p-0" on:click={() => dropCollection(collection.name)}>
-				<span class="material-icons">delete</span>
-			</button>
-		</li>
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">{schema.name}</h5>
+					<h6 class="card-subtitle mb-2 text-body-secondary">{schema.id}</h6>
+					{#if schema.description}
+						<p class="card-text">{schema.description}</p>
+					{/if}
+					<a href="/schemata/{schema.id}/documents" class="btn btn-secondary btn-sm">Documents</a>
+					<button class="btn btn-light btn-sm" on:click={() => openDialog(schema)}>
+						Edit
+					</button>
+					<button class="btn btn-light btn-sm" on:click={() => openDeleteDialog(schema)}>
+						Delete
+					</button>
+				</div>
+			</div>
+		</div>
 		{/each}
-	</ul>
-
-	<div class="input-group input-group-lg mb-3">
-		<input 
-			type="text" 
-			class="form-control" 
-			placeholder="New collection name" 
-			aria-label="New collection name" 
-			aria-describedby="button-create-collection"
-			bind:value={newCollectionName}
-		>
-
-		<button class="btn btn-primary" type="button" id="button-create-collection" on:click={createCollection}>Create</button>
 	</div>
+	
+	<Modal bind:this={deleteConfirmDialog} size="sm">
+		<svelte:fragment slot="title">
+			Confirm delete
+		</svelte:fragment>
+		Are you really want to delete <strong>{selectedSchema.name}</strong> schema?
+		<svelte:fragment slot="footer">
+			<button type="button" class="btn btn-secondary" on:click={() => deleteConfirmDialog.close()}>No</button>
+			<button 
+				type="button" 
+				class="btn btn-danger" 
+				on:click={() => confirmDelete(selectedSchema.id)} 
+			>
+			Yes, delete!
+			</button>
+		</svelte:fragment>
+	</Modal>
+
+	<Modal bind:this={schemaDialog} size="lg">
+		<svelte:fragment slot="title">
+			{#if input}
+				Edit schema
+			{:else}
+				Add new schema
+			{/if}
+		</svelte:fragment>
+		
+		<SchemaForm 
+			bind:this={form} 
+			bind:submittable={isSubmittable}
+			{input}
+			on:success={() => schemaDialog.close()}
+		/>
+		
+		<svelte:fragment slot="footer">
+			<button type="button" class="btn btn-secondary" on:click={() => schemaDialog.close()}>Cancel</button>
+			<button 
+				type="button" 
+				class="btn btn-primary" 
+				on:click={() => form.submit()} 
+				disabled={!isSubmittable}
+			>
+			{#if input}
+				Save changes
+			{:else}
+				Create schema
+			{/if}
+			</button>
+		</svelte:fragment>
+	</Modal>
 </div>

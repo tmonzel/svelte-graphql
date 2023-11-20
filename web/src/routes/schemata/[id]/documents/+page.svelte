@@ -28,7 +28,7 @@
 </script>
 
 <div class="page-options">
-  <a class="btn btn-light mb-3" href="/schemata">
+  <a class="btn btn-light mb-3" href="/">
     <div class="d-flex">
       <span class="material-icons me-2">chevron_left</span>
       Schemata
