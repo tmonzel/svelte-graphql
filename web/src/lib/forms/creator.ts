@@ -38,7 +38,9 @@ export function createForm<T extends FormSchema, ValueType = any>(schema: T): Fo
 
     for(const [name, entry] of Object.entries(schema)) {
       if(Array.isArray(entry)) {
-        result[name] = entry.map((v) => walkControls(v as FormSchema, writer));
+        result[name] = entry.map((v) => {
+          return v instanceof FormControl ? writer(v, name) : walkControls(v as FormSchema, writer);
+        });
       } else if(entry instanceof FormControl) {
         // Is concrete FormControl
         result[name] = writer(entry, name);
