@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import SchemaForm from '$lib/components/SchemaForm.svelte';
+	import { notify } from '$lib/notification';
+	import SchemaForm from '../../SchemaForm.svelte';
 
   export let data;
 
@@ -24,5 +25,8 @@
   bind:submittable
   bind:dirty
   input={data.schema}
-  on:success={() => goto('/')}
+  on:success={() => {
+    notify({ type: 'success', message: 'Schema saved' });
+    goto('/')
+  }}
 />
